@@ -8,93 +8,106 @@
 
 <!-- uncomment the below script to manually define the onetrust geolocation  -->
         <script type="text/javascript">
-            var OneTrust = {        
-                geolocationResponse: {        
-                    stateCode: 'QC',        
-                    countryCode: 'CA',        
-                    regionCode: '', // Optional parameter        
-                }        
-            };    
+            var OneTrust = {
+                geolocationResponse: {
+                    stateCode: 'QC',
+                    countryCode: 'CA',
+                    regionCode: '', // Optional parameter
+                }
+            };
           </script>
 
 <!-- OneTrust Cookies Consent Notice start -->
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="18e3ca35-dd92-4883-93ac-cef8909963cd-test" ></script>
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="018df554-61a7-7358-8db0-5522e5104ebf-test" ></script>
 <script type="text/javascript">
-//  cookie removal script example below - demo purpose only, please refer to the readme.md for the cookie removal script used in live client environment  
+//  cookie removal script example below - demo purpose only, please refer to the readme.md for the cookie removal script used in live client environment
 function OptanonWrapper() {
+// Get initial OnetrustActiveGroups ids
+    if (typeof OptanonWrapperCount === 'undefined') {
+        otGetInitialGrps();
+    }
 
-            if (typeof OptanonWrapperCount == "undefined") {
-                otGetInitialGrps();
+    // Delete cookies
+    otDeleteCookie(otIniGrps);
+
+    // Assign OneTrustActiveGroups to custom variable
+    function otGetInitialGrps() {
+        OptanonWrapperCount = '';
+        // OnetrustActiveGroups is a OneTrust data layer variable that stores users' consent preferences
+        otIniGrps = OnetrustActiveGroups;
+    }
+
+    function otDeleteCookie(iniOptGrpId) {
+        // Cookie scripts that has a Optanon cookie category assigned
+        const otDomainGrps = Optanon.GetDomainData().Groups;
+
+        // Disabled cookie categories list
+        const otDeletedGrpIds = otGetInactiveId(iniOptGrpId, OnetrustActiveGroups);
+
+        otDomainGrps.forEach((domainGroup) => {
+        // If there’s a match, it calls eraseCookie() to set the cookie expiration time to a past date to erase the cookie
+        if (
+            domainGroup.CustomGroupId !== '' &&
+            otDeletedGrpIds.includes(domainGroup.CustomGroupId)
+        ) {
+            domainGroup.Cookies.forEach((cookie) => {
+                eraseCookie(cookie.Name);
+            });
+        }
+        });
+
+        // After cookie erasing is done, window is refreshed
+        if (otDeletedGrpIds.length !== 0 && otDomainGrps.length !== 0) {
+            window.location.reload();
+        }
+
+        // The new user consented cookie category is saved
+        otGetInitialGrps();
+    }
+
+    // Runs after user makes changes on the preference settings
+    function otGetInactiveId(customIniId, otActiveGrp) {
+        // Last updated value
+        customIniId = customIniId.split(",")
+        customIniId = customIniId.filter(Boolean);
+
+        // Newly updated OneTrustActiveGroups
+        otActiveGrp = otActiveGrp.split(",")
+        otActiveGrp = otActiveGrp.filter(Boolean);
+
+        // Find out the cookie category that has been disabled by the user
+        return customIniId.filter(inactiveGroups => !otActiveGrp.includes(inactiveGroups));
+    }
+
+    // Delete the cookie by setting its expiration time to a past date
+    function eraseCookie(name) {
+        // Delete cookies associated with uat domains
+        const domainName = window.location.hostname;
+        document.cookie = name + "=; Max-Age=-99999999; Path=/;Domain=" + domainName;
+        document.cookie = name + "=; Max-Age=-99999999; Path=/;";
+        const my_domains = [
+            "local.website.com",
+            "sit.website.com",
+            "website.com"
+        ];
+
+        my_domains.forEach((domain) => {
+            document.cookie = name + "=; Max-Age=-99999999; Path=/;Domain=" + domain;
+        });
+
+        localStorage.removeItem(name);
+
+        const pathArray = window.location.pathname.split("/");
+        for (let i = 0; i < pathArray.length; i++) {
+            if (pathArray[i]) {
+                let currentPath = pathArray.slice(0, i + 1).join("/");
+                document.cookie = name + "=; Max-Age=-99999999; Path=" + currentPath + ";Domain=" + domainName;
+                document.cookie = name + "=; Max-Age=-99999999; Path=" + currentPath + ";";
+                document.cookie = name + "=; Max-Age=-99999999; Path=" + currentPath + "/;Domain=" + domainName;
+                document.cookie = name + "=; Max-Age=-99999999; Path=" + currentPath + "/;";
             }
-            function otGetInitialGrps() {
-                OptanonWrapperCount = '';
-                otIniGrps = OnetrustActiveGroups;
-            }
-            otDeleteCookie(otIniGrps);
-
-            function otDeleteCookie(iniOptGrpId) {
-
-                var otDomainGrps = JSON.parse(JSON.stringify(Optanon.GetDomainData().Groups));
-                var otDeletedGrpIds = otGetInactiveId(iniOptGrpId, OnetrustActiveGroups);
-
-                if (iniOptGrpId.length != 0 && OnetrustActiveGroups.length != 0 && iniOptGrpId.length < OnetrustActiveGroups.length && ifNewCategoryConsented(iniOptGrpId, OnetrustActiveGroups)){
-                    console.log("more groups allowed, refresh");
-                    window.location.reload();
-                }
-
-                else if (otDeletedGrpIds.length != 0 && otDomainGrps.length != 0) {
-                        if (otDeletedGrpIds.includes("C0004") && document.cookie.match('(^|;)\\s*' + "Email" + '\\s*=\\s*([^;]+)')) {
-                            document.cookie = "Email=Anonymous";
-                            localStorage.removeItem("Email");
-                            console.log("cookie removal targeting");
-                               window.location.reload();
-                        }
-
-                       if (otDeletedGrpIds.includes("C0002") && document.cookie.match('(^|;)\\s*' + "pageviewCount" + '\\s*=\\s*([^;]+)')) {
-                               eraseCookie("pageviewCount");
-                               console.log("cookie removal performance");
-                               window.location.reload();
-                               
-                        }
-                        
-                        if (otDeletedGrpIds.includes("C0003") ) {
-                            console.log("cookie removal functional");
-                               window.location.reload();
-                        }
-
-                    }
-
-                }
-                otGetInitialGrps();
-            
-            function otGetInactiveId(customIniId, otActiveGrp) {
-                customIniId = customIniId.split(",");
-                customIniId = customIniId.filter(Boolean);
-                otActiveGrp = otActiveGrp.split(",");
-                otActiveGrp = otActiveGrp.filter(Boolean);
-                var result = [];
-                for (var i = 0; i < customIniId.length; i++) {
-                    if (otActiveGrp.indexOf(customIniId[i]) <= -1) {
-                        result.push(customIniId[i]);
-                    }
-                }
-                return result;
-            }
-
-            function ifNewCategoryConsented (customIniId, otActiveGrp){
-                customIniId = customIniId.split(",");
-                customIniId = customIniId.filter(Boolean);
-                otActiveGrp = otActiveGrp.split(",");
-                otActiveGrp = otActiveGrp.filter(Boolean);
-                return customIniId.every(v => otActiveGrp.includes(v));
-            }
-
-            function eraseCookie(name) {
-                domainName = window.location.hostname;
-                document.cookie = name + "=; Max-Age=-99999999; Path=/;Domain=" + domainName;
-                document.cookie = name + '=; Max-Age=-99999999; Path=/;';
-                localStorage.removeItem(name);
-            }
+        }
+    }
  }
 </script>
 
@@ -109,10 +122,10 @@ function OptanonWrapper() {
     })(window,document,'script','dataLayer','GTM-K3JR484C');</script>
     <!-- End Google Tag Manager -->
 
-
     <!-- below are the examples of javascript type rewriting for cookie blocking -->
-<script type="text/plain" class="optanon-category-C0003" src="http://127.0.0.1:5500/Code/Scripts/function.js"></script>
-<script type="text/plain" class="optanon-category-C0002" src="http://127.0.0.1:5500/Code/Scripts/performance.js"></script>
+    <!-- when the cookie is active, the script will automatically convert type from plain text to javascript and fire the cookie -->
+    <script type="text/plain" class="optanon-category-C0003" src="http://127.0.0.1:5500/Code/Scripts/function.js"></script>
+    <script type="text/plain" class="optanon-category-C0002" src="http://127.0.0.1:5500/Code/Scripts/performance.js"></script>
 
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -120,7 +133,7 @@ function OptanonWrapper() {
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="">
-        
+
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
     </head>
     <body>
@@ -141,7 +154,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div>
             <h3 data-testid="price-container" class="plp__price__325EX plp__customPrice__1OSfi"><span aria-label="$8.99">$8.99</span></h3>
-            
             <p class="plp__pcoPointsTxt__3IBzl plp__pointsTxt__75EWE" style="color: #cb333b;">120<span style="color: #cb333b;" class="plp__pcOptimumNameTxt__nLQU_ plp__pcoPointsTxt__3IBzl plp__optimumNameTxt__36vv6"> PC Optimum</span> points</p>
             <div class="plp__container__wxmKh" data-testid="variant-selection"><p class="plp__variantName__tiEnh">Size:&nbsp;444 mL</p></div>
         </div>

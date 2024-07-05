@@ -1,9 +1,4 @@
-
-// function pageLoad() {
-//     document.getElementById("demo").style.color = "red";
-//   }
-
-  document.getElementById("demo").onclick = function pageLoad() {
+document.getElementById("demo").onclick = function pageLoad() {
     location.href = "../html/subpage.html";
 };
 
@@ -11,9 +6,10 @@ document.getElementById("user").onclick = function pageLoadUser() {
   location.href = "../html/user.html";
 };
 
+// WORKAROUND: OneTrust doesn't work consistently
 document.getElementById("otbutton").onclick = function infoDisplay() {
+  // Display manually the cookie settings
   window.OneTrust.ToggleInfoDisplay()
-
 };
 
 document.getElementById('price').innerHTML =  document.cookie.match('(^|;)\\s*' + "Unit" + '\\s*=\\s*([^;]+)')?.pop() || 'no_value_storeded';

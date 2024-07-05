@@ -8,8 +8,6 @@ window.OneTrust.OnConsentChanged(() => {
     console.log(window.OnetrustActiveGroups);
 });
 
-
-
 document.getElementById("back").onclick = function backToIndex() {
     location.href = "../html/index.html";
 };
