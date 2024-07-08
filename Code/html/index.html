@@ -13,12 +13,18 @@
                     stateCode: 'QC',
                     countryCode: 'CA',
                     regionCode: '', // Optional parameter
+                },
+                dataSubjectParams: {
+                    id: "test@gmail.com",
+                    isAnonymous: false,
+                    token :"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AcYRB1NhZv-eyGfiwu6MO57pjdngkXa8JHFgI9PFPKg"
                 }
+
             };
           </script>
 
-<!-- OneTrust Cookies Consent Notice start -->
-<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="018df554-61a7-7358-8db0-5522e5104ebf-test" ></script>
+
+<script src="https://cdn.cookielaw.org/scripttemplates/otSDKStub.js" data-document-language="true" type="text/javascript" charset="UTF-8" data-domain-script="4b5474f8-7f0c-4abd-9baa-3abe1f8eb63d-test" ></script>
 <script type="text/javascript">
 //  cookie removal script example below - demo purpose only, please refer to the readme.md for the cookie removal script used in live client environment
 function OptanonWrapper() {
@@ -58,7 +64,8 @@ function OptanonWrapper() {
 
         // After cookie erasing is done, window is refreshed
         if (otDeletedGrpIds.length !== 0 && otDomainGrps.length !== 0) {
-            window.location.reload();
+            setTimeout(window.location.reload(),1000);
+            
         }
 
         // The new user consented cookie category is saved
