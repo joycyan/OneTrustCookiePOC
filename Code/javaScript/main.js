@@ -53,6 +53,7 @@ function displayAuthButton() {
 
 function signOut() {
   localStorage.removeItem("loginEmail");
+  document.cookie = 'OptanonConsent' + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   location.reload();
 }
 

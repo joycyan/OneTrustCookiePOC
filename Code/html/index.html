@@ -9,7 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
     <!-- uncomment the below script to manually define the onetrust geolocation  -->
     <script type="text/javascript">
+
         const loginEmail = localStorage.getItem("loginEmail");
+
 
         var OneTrust = {
             geolocationResponse: {
@@ -58,6 +60,7 @@
                 isAnonymous: false,
                 token: tokenGenerated
             }
+            console.log('OneTrust:', OneTrust);
         }
     </script>
 
