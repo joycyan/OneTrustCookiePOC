@@ -6,7 +6,7 @@
 <html lang="en">
 
 <head>
-
+    <script src="https://cdn.jsdelivr.net/npm/jsrsasign"></script>
     <!-- uncomment the below script to manually define the onetrust geolocation  -->
     <script type="text/javascript">
         const loginEmail = localStorage.getItem("loginEmail");
@@ -20,10 +20,43 @@
         };
 
         if (loginEmail) {
+            // Function to generate a JWT token starts 
+            function generateToken(clientId, secret) {
+                // Header
+                const header = {
+                    alg: "HS256",
+                    typ: "JWT"
+                };
+
+                // Payload
+                const payload = {
+                    client_id: clientId,
+                    exp: Math.floor(Date.now() / 1000) + (60 * 60) // Token expires in 1 hour
+                };
+
+                // Convert objects to JSON strings
+                const sHeader = JSON.stringify(header);
+                const sPayload = JSON.stringify(payload);
+
+                // Sign the token
+                const sJWT = KJUR.jws.JWS.sign("HS256", sHeader, sPayload, { utf8: secret });
+
+                return sJWT;
+            }
+            // Function to generate a JWT token ends
+
+            // Example usage starts
+            const clientId = loginEmail;
+            const secret = 'eeeeeeeeeeeee';
+
+            const tokenGenerated = generateToken(clientId, secret);
+            console.log('Generated JWT Token:', tokenGenerated);
+            // Example usage ends
+
             OneTrust.dataSubjectParams = {
                 id: loginEmail,
                 isAnonymous: false,
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.AcYRB1NhZv-eyGfiwu6MO57pjdngkXa8JHFgI9PFPKg"
+                token: tokenGenerated
             }
         }
     </script>
