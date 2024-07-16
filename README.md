@@ -24,3 +24,8 @@ OnetrustActiveGroups ID's
     - Targeting (a.k.a Advertising): C0004
     - Unknown: C0010
 
+When the user clicks on the Login button, a modal will appear for the user to enter an email address. Once logged in:
+    - If the authenticated user has not yet selected their cookie preferences, the cookie banner will appear allowing the user to submit their preferences. These preferences will be stored along with unique identifier for that user to ensure that the preferences can be used wherever the user logs in (cross device / cross domain)
+     - If the authenticated user has previously selected their cookie preferences, these preferences will be fetched from OneTrust and the banner will not be shown again.
+
+When an authenticated user clicks on the Sign Out button, any cookie preferences associated with that user will be cleared from the browser, and the cookie banner will be shown for the unauthenticated user to select their preferences.
